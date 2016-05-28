@@ -18,17 +18,21 @@ class Version(object):
         if self._version is not None:
             return self._version.strip()
 
-    def imprint(self):
-        """Write the determined version to ``self.version_file``, if any.
+    def imprint(self, path=None):
+        """Write the determined version, if any, to ``self.version_file`` or
+           the path passed as an argument.
         """
         if self.version is not None:
-            with open(self.version_file, 'w') as h:
+            with open(path or self.version_file, 'w') as h:
                 h.write(self.version + '\n')
         else:
             raise ValueError('Can not write null version to file.')
         return self
 
     def from_file(self, path=None):
+        """Look for a version in ``self.version_file``, or in the specified
+           path if supplied.
+        """
         if self._version is None:
             self._version = file_version(path or self.version_file)
         return self
@@ -39,6 +43,11 @@ class Version(object):
         return self
 
     def from_git(self, path=None):
+        """Use Git to determine the package version.
+
+           This routine uses the __file__ value of the caller to determine
+           which Git repository root to use.
+        """
         if self._version is None:
             frame = caller(1)
             path = frame.f_globals.get('__file__') or '.'
@@ -50,6 +59,8 @@ class Version(object):
         return self
 
     def from_pkg(self):
+        """Use pkg_resources to determine the installed package version.
+        """
         if self._version is None:
             frame = caller(1)
             pkg = frame.f_globals.get('__package__')
