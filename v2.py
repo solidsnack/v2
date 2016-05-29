@@ -18,7 +18,8 @@ class Version(object):
     @property
     def version(self):
         if self._version is not None:
-            return six.b(self._version.strip())
+            v = self._version.strip()
+            return v if isinstance(v, six.binary_type) else six.b(v)
 
     def imprint(self, path=None):
         """Write the determined version, if any, to ``self.version_file`` or
@@ -89,7 +90,8 @@ def file_version(name='VERSION'):
 
 def pkg_version(package=None):
     try:
-        return pkg_resources.get_distribution(package).version
+        v = pkg_resources.get_distribution(package).version
+        return v if isinstance(v, six.binary_type) else six.b(v)
     except:
         pass
 
