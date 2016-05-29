@@ -6,8 +6,6 @@ import os
 import pkg_resources
 from subprocess import check_output, CalledProcessError
 
-import six
-
 
 class Version(object):
     def __init__(self, default='0', version_file='VERSION'):
@@ -18,16 +16,15 @@ class Version(object):
     @property
     def version(self):
         if self._version is not None:
-            v = self._version.strip()
-            return v if isinstance(v, six.binary_type) else six.b(v)
+            return self._version.strip()
 
     def imprint(self, path=None):
         """Write the determined version, if any, to ``self.version_file`` or
            the path passed as an argument.
         """
         if self.version is not None:
-            with open(path or self.version_file, 'wb') as h:
-                h.write(self.version + six.b('\n'))
+            with open(path or self.version_file, 'w') as h:
+                h.write(self.version + '\n')
         else:
             raise ValueError('Can not write null version to file.')
         return self
@@ -82,16 +79,15 @@ v2 = Version()
 
 def file_version(name='VERSION'):
     if os.path.exists(name):
-        with open(name, 'rb') as h:
+        with open(name) as h:
             txt = h.read().strip()
             if len(txt) != 0:
-                return txt
+                return s(txt)
 
 
 def pkg_version(package=None):
     try:
-        v = pkg_resources.get_distribution(package).version
-        return v if isinstance(v, six.binary_type) else six.b(v)
+        s(pkg_resources.get_distribution(package).version)
     except:
         pass
 
@@ -106,21 +102,21 @@ def git_version():
        as PEP-440 "local version identifiers".
     """
     tag = check_output(['git', 'describe']).strip()
-    pieces = tag.split(six.b('-'))
+    pieces = s(tag).split('-')
     dotted = pieces[0]
     if len(pieces) < 2:
         distance = None
     else:
         # Distance from the latest tag is treated as a patch level.
         distance = pieces[1]
-        dotted += six.b('.') + distance
+        dotted += '.' + s(distance)
     # Branches that are not master are treated as local:
     #   https://www.python.org/dev/peps/pep-0440/#local-version-identifiers
     if distance is not None:
         branch = check_output(['git', 'rev-parse',
                                '--abbrev-ref', 'HEAD']).strip()
         if branch != 'master':
-            dotted += six.b('+') + branch
+            dotted += '+' + s(branch)
     return dotted
 
 
@@ -143,3 +139,9 @@ def cd(path='.'):
 def caller(height=0):
     caller = inspect.stack()[height+1]
     return caller[0]
+
+
+def s(something):
+    if isinstance(something, str):
+        return something
+    return something.decode()
