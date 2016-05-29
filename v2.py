@@ -81,9 +81,9 @@ v2 = Version()
 
 def file_version(name='VERSION'):
     if os.path.exists(name):
-        with open(name) as h:
+        with open(name, 'rb') as h:
             txt = h.read().strip()
-            if txt != '':
+            if len(txt) != 0:
                 return txt
 
 
@@ -111,14 +111,14 @@ def git_version():
     else:
         # Distance from the latest tag is treated as a patch level.
         distance = pieces[1]
-        dotted += '.' + distance
+        dotted += six.b('.') + distance
     # Branches that are not master are treated as local:
     #   https://www.python.org/dev/peps/pep-0440/#local-version-identifiers
     if distance is not None:
         branch = check_output(['git', 'rev-parse',
                                '--abbrev-ref', 'HEAD']).strip()
         if branch != 'master':
-            dotted += '+' + branch
+            dotted += six.b('+') + branch
     return dotted
 
 
