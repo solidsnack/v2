@@ -32,3 +32,36 @@ From within your package root:
 
     __version__ = v2.from_pkg().from_git().from_default().version
 
+From within your Sphinx ``conf.py``:
+
+.. code:: python
+
+    from v2 import v2
+
+    # ...
+
+    version = v2.from_file('../../VERSION').from_git().version
+
+By default, ``v2`` looks for and writes to ``VERSION`` in the project root.
+Consequently, a one-line ``MANIFEST.in`` is necessary:
+
+.. code::
+
+    include VERSION
+
+----------
+Precedence
+----------
+
+``v2`` allows you to control the order in which versions are found, simply by
+call ``from_file``, ``from_git`` and ``from_pkg`` in the desired order. The
+first one found is used; remaining searches are skipped. To obtain the version
+value we use ``.version`` (it's always a string).
+
+-------------------
+Writing the Version
+-------------------
+
+The ``v2`` module's default interface object uses ``VERSION`` as the path to
+its version file. With ``.from_file`` it reads from this file, if present;
+with ``.imprint`` it writes to this file.
