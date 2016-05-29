@@ -26,7 +26,7 @@ class Version(object):
         """
         if self.version is not None:
             with open(path or self.version_file, 'w') as h:
-                h.write(self.version + '\n')
+                h.write(self.version + six.b('\n'))
         else:
             raise ValueError('Can not write null version to file.')
         return self
