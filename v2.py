@@ -6,6 +6,8 @@ import os
 import pkg_resources
 from subprocess import check_output, CalledProcessError
 
+import six
+
 
 class Version(object):
     def __init__(self, default='0', version_file='VERSION'):
@@ -16,7 +18,7 @@ class Version(object):
     @property
     def version(self):
         if self._version is not None:
-            return self._version.strip()
+            return six.b(self._version.strip())
 
     def imprint(self, path=None):
         """Write the determined version, if any, to ``self.version_file`` or
@@ -102,7 +104,7 @@ def git_version():
        as PEP-440 "local version identifiers".
     """
     tag = check_output(['git', 'describe']).strip()
-    pieces = tag.split('-')
+    pieces = tag.split(six.b('-'))
     dotted = pieces[0]
     if len(pieces) < 2:
         distance = None

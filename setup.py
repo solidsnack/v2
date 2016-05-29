@@ -4,7 +4,8 @@ from setuptools import setup
 
 
 conf = dict(name='v2',
-            version='1.0.0',
+            version='1.0.1',
+            install_requires=['six'],
             author='Jason Dusek',
             author_email='jason.dusek@gmail.com',
             url='https://github.com/solidsnack/v2',
