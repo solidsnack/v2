@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 conf = dict(name='v2',
-            version='1.0.1',
+            version='1.0.3',
             install_requires=['six'],
             author='Jason Dusek',
             author_email='jason.dusek@gmail.com',
