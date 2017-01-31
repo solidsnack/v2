@@ -42,7 +42,7 @@ class Version(object):
             self._version = self.default
         return self
 
-    def from_git(self, path=None):
+    def from_git(self, path=None, prefer_daily=False):
         """Use Git to determine the package version.
 
            This routine uses the __file__ value of the caller to determine
@@ -51,11 +51,16 @@ class Version(object):
         if self._version is None:
             frame = caller(1)
             path = frame.f_globals.get('__file__') or '.'
-            try:
-                with cd(path):
-                    self._version = git_version()
-            except CalledProcessError:
-                pass
+            providers = ([git_day, git_version] if prefer_daily
+                         else [git_version, git_day])
+            for provider in providers:
+                if self._version is not None:
+                    break
+                try:
+                    with cd(path):
+                        self._version = provider()
+                except CalledProcessError:
+                    pass
         return self
 
     def from_pkg(self):
@@ -92,6 +97,30 @@ def pkg_version(package=None):
         pass
 
 
+def git_day():
+    """Constructs a version string of the form:
+
+           day[.<commit-number-in-day>][+<branch-name-if-not-master>]
+
+       Master is understood to be always buildable and thus untagged
+       versions are treated as patch levels. Branches not master are treated
+       as PEP-440 "local version identifiers".
+    """
+    cmd = ['env', 'TZ=UTC', 'git', 'log', '--date=iso-local', '--pretty=%ad']
+    day = check_output(cmd + ['-n', '1']).split()[0]
+    commits = check_output(cmd + ['--since', day + 'T00:00Z']).strip()
+    n = len(commits.split('\n'))
+    day = day.replace('-', '')
+    if n > 1:
+        day += '.%s' % n
+    # Branches that are not master are treated as local:
+    #   https://www.python.org/dev/peps/pep-0440/#local-version-identifiers
+    branch = get_git_branch()
+    if branch != 'master':
+        day += '+' + s(branch)
+    return day
+
+
 def git_version():
     """Constructs a version string of the form:
 
@@ -113,11 +142,14 @@ def git_version():
     # Branches that are not master are treated as local:
     #   https://www.python.org/dev/peps/pep-0440/#local-version-identifiers
     if distance is not None:
-        branch = check_output(['git', 'rev-parse',
-                               '--abbrev-ref', 'HEAD']).strip()
+        branch = get_git_branch()
         if branch != 'master':
             dotted += '+' + s(branch)
     return dotted
+
+
+def get_git_branch():
+    return check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).strip()
 
 
 @contextmanager
