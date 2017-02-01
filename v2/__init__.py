@@ -106,9 +106,9 @@ def git_day():
        versions are treated as patch levels. Branches not master are treated
        as PEP-440 "local version identifiers".
     """
-    cmd = ['env', 'TZ=UTC', 'git', 'log', '--date=iso-local', '--pretty=%ad']
-    day = check_output(cmd + ['-n', '1']).split()[0]
-    commits = check_output(cmd + ['--since', day + 'T00:00Z']).strip()
+    vec = ['env', 'TZ=UTC', 'git', 'log', '--date=iso-local', '--pretty=%ad']
+    day = cmd(*(vec + ['-n', '1'])).split()[0]
+    commits = cmd(*(vec + ['--since', day + 'T00:00Z'])).strip()
     n = len(commits.split('\n'))
     day = day.replace('-', '')
     if n > 1:
@@ -130,7 +130,7 @@ def git_version():
        versions are treated as patch levels. Branches not master are treated
        as PEP-440 "local version identifiers".
     """
-    tag = check_output(['git', 'describe']).strip()
+    tag = cmd('git', 'describe').strip()
     pieces = s(tag).split('-')
     dotted = pieces[0]
     if len(pieces) < 2:
@@ -149,7 +149,7 @@ def git_version():
 
 
 def get_git_branch():
-    return check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).strip()
+    return cmd('git', 'rev-parse', '--abbrev-ref', 'HEAD').strip()
 
 
 @contextmanager
@@ -177,3 +177,8 @@ def s(something):
     if isinstance(something, str):
         return something
     return something.decode()
+
+
+def cmd(*args):
+    with open(os.devnull, 'w') as err:
+        return check_output(args, stderr=err)
