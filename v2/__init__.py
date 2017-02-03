@@ -61,6 +61,9 @@ class Version(object):
                         self._version = provider()
                 except CalledProcessError:
                     pass
+                except OSError as e:
+                    if e.errno != errno.ENOENT:
+                        raise
         return self
 
     def from_pkg(self):
