@@ -95,7 +95,7 @@ def file_version(name='VERSION'):
 
 def pkg_version(package=None):
     try:
-        s(pkg_resources.get_distribution(package).version)
+        return s(pkg_resources.get_distribution(package).version)
     except:
         pass
 
