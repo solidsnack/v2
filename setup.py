@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 
 conf = dict(name='v2',
-            version='1.0.6',
+            version='1.0.7',
             install_requires=['magiclog'],
             author='Jason Dusek',
             author_email='jason.dusek@gmail.com',
@@ -21,7 +21,7 @@ conf = dict(name='v2',
                          'Operating System :: POSIX',
                          'Programming Language :: Python',
                          'Programming Language :: Python :: 2.7',
-                         'Programming Language :: Python :: 3.5',
+                         'Programming Language :: Python :: 3',
                          'Topic :: Software Development',
                          'Development Status :: 4 - Beta'])
 
